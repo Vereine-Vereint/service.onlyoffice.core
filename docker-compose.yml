@@ -4,26 +4,61 @@ networks:
     external: true
 
 services:
-  example:
-    image: whoami
-    restart: unless-stopped
-    # ports:
-    #   - 80:80 # Port of service
-    volumes:
-    # use generated folder for generated templates
-    - ./generated/example:/example:ro # generated template "named example"
-    # use volumes folder for data persistance
-    - ./volumes/test:/test # volume "test" for service
-    env_file:
-    - ../${ENV_FILE} # load selected environment file
-
+  onlyoffice:
+    image: onlyoffice/documentserver
+    depends_on:
+      - onlyoffice-db
+      - onlyoffice-rabbitmq
+    environment:
+      - DB_TYPE=postgres
+      - DB_HOST=onlyoffice-db
+      - DB_PORT=5432
+      - DB_NAME=onlyoffice
+      - DB_USER=onlyoffice
+      - AMQP_URI=amqp://guest:guest@onlyoffice-rabbitmq
+      # Uncomment strings below to enable the JSON Web Token validation.
+      #- JWT_ENABLED=true
+      - JWT_SECRET=${JWT_SECRET}
+      #- JWT_HEADER=Authorization
+      #- JWT_IN_BODY=true
     networks:
-    - traefik # add to traefik network
-    - default # add to default (stack internal) network
+      - default
+      - traefik
+    # ports:
+      # - '80:80'
+      # - '443:443'
+    stdin_open: true
+    restart: unless-stopped
+    stop_grace_period: 60s
+    volumes:
+       # - /var/www/onlyoffice/Data # certificates, not needed with proxy
+       - ./volumes/log:/var/log/onlyoffice
+       - ./volumes/lib:/var/lib/onlyoffice/documentserver/App_Data/cache/files
+       - ./volumes/www:/var/www/onlyoffice/documentserver-example/public/files
+       - ./volumes/fonts:/usr/share/fonts
 
-    # add labels to connect to traefik
     labels:
       - "traefik.enable=true"
-      # replace EXAMPLE with your service name
-      - "traefik.http.routers.EXAMPLE.rule=Host(`${EXAMPLE_DOMAIN}`)"
-      - "traefik.http.routers.EXAMPLE.entrypoints=websecure"
+      - "traefik.http.routers.onlyoffice.rule=Host(`${ONLYOFFICE_DOMAIN}`)"
+      - "traefik.http.routers.onlyoffice.entrypoints=websecure"
+
+  onlyoffice-rabbitmq:
+    image: rabbitmq
+    restart: unless-stopped
+    networks:
+      - onlyoffice
+    # expose:
+    #   - '5672'
+
+  onlyoffice-db:
+    container_name: onlyoffice-db
+    image: postgres:9.5
+    environment:
+      - POSTGRES_DB=onlyoffice
+      - POSTGRES_USER=onlyoffice
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    restart: unless-stopped
+    # expose:
+    #   - '5432'
+    volumes:
+      - ./volumes/db:/var/lib/postgresql

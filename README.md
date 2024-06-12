@@ -1,6 +1,6 @@
-# service.template
+# service.onlyoffice
 
-service for TEMPLATE
+service for onlyoffice
 
 [Documentation of service core](https://github.com/Vereine-Vereint/service.core)
 

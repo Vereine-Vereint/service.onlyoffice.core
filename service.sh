@@ -1,5 +1,5 @@
 #!/bin/bash
-SERVICE_NAME="lowercaseservicename"
+SERVICE_NAME="onlyoffice"
 SERVICE_VERSION="v0.1"
 
 set -e
@@ -10,8 +10,6 @@ cd $SERVICE_DIR
 
 # CORE
 source ./core/core.sh
-# BORG
-source ./borg/borg.sh
 
 
 # VARIABLES
