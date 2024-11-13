@@ -45,8 +45,6 @@ services:
   onlyoffice-rabbitmq:
     image: rabbitmq
     restart: unless-stopped
-    networks:
-      - onlyoffice
     # expose:
     #   - '5672'
 
