@@ -19,11 +19,10 @@ set +o allexport
 
 # COMMANDS
 
-# This is an example command that prints a message from the first argument
-# commands+=([example]="<msg>:Example command that prints <msg>")
-# cmd_example() {
-#   echo "Example: $1"
-# }
+commands+=([example]=":Start onlyoffice example")
+cmd_example() {
+  docker compose exec onlyoffice sudo supervisorctl start ds:example
+}
 
 # ATTACHMENTS
 
